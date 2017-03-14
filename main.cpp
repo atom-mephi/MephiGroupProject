@@ -10,11 +10,24 @@
 
 int main() {
 
-	stck::stack<int, vec::vector<int>> test_st;
+	vec::vector<int> t;
 
-	test_st.push(3);
+	for (int i = 0; i < 10; ++i) t.push_back(i);
 
-	std::cout << test_st.top() << std::endl;
+	t.resize(10);
+	vec::vector<int> test = t;
+
+	t.push_back(100);
+
+	test.emplace_back(3);
+	for (int i = 0; i < test.size(); ++i) {
+		std::cout << test[i] << " ";
+	} std::cout << std::endl;
+	
+	for (int i = 0; i < t.size(); ++i) {
+		std::cout << t[i] << " ";
+	} std::cout << std::endl;
+
 
 	return 0;
 }

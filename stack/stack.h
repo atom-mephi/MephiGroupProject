@@ -18,16 +18,16 @@
 
 namespace stck {
 
-#define DUMP(START_END_CONDITION) 					 	\
-	dump(__PRETTY_FUNCTION__, START_END_CONDITION);  	\
+#define DUMP(START_END_STATE) 					 	\
+	dump(__PRETTY_FUNCTION__, START_END_STATE);  	\
 
 /**
  * constants namespace
  */
 namespace constants {
 	const std::string DUMP_FILE_NAME = "dump_file.txt";
-	const std::string START_CONDITION = "START";
-	const std::string END_CONDITION = "END";
+	const std::string START_STATE = "START";
+	const std::string END_STATE = "END";
 };
 
 /**
@@ -73,14 +73,14 @@ public:
 	 * @return last element in stack
 	 */
 	T top() const {
-		DUMP(constants::START_CONDITION);
+		DUMP(constants::START_STATE);
 
 		if (empty()) {
-			DUMP(constants::END_CONDITION);			
+			DUMP(constants::END_STATE);			
 			T item;
 			return item;
 		} else {
-			DUMP(constants::END_CONDITION);
+			DUMP(constants::END_STATE);
 			return container_[container_.size() - 1];
 		}
 
@@ -90,11 +90,11 @@ public:
 	 * pop last element out of stack
 	 */
 	void pop() {
-		DUMP(constants::START_CONDITION);
+		DUMP(constants::START_STATE);
 
 		if (container_.size() != 0) container_.pop_back();
 			
-		DUMP(constants::END_CONDITION);
+		DUMP(constants::END_STATE);
 	}
 
 	/**
@@ -102,11 +102,11 @@ public:
 	 * @param elem element to push
 	 */
 	void push(const T& elem) {
-		DUMP(constants::START_CONDITION);
+		DUMP(constants::START_STATE);
 
 		container_.push_back(elem);
 		
-		DUMP(constants::END_CONDITION);
+		DUMP(constants::END_STATE);
 	}
 
 	/**
