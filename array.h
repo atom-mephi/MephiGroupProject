@@ -127,7 +127,6 @@ class Array
             }
         }
 
-    private:
         T _data[N];
 };
 
