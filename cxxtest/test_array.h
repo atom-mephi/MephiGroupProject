@@ -8,9 +8,15 @@ class TestArray : public CxxTest::TestSuite
 public:
     void testArraySize(void)
     {
-        Array<int, 10> arr;
+        // given
+        const size_t expectedValue = 10;
+        Array<int, expectedValue> arr;
 
-        TS_ASSERT_EQUALS(arr.size(), 10);
+        // when
+        size_t arrSize = arr.size();
+
+        // then
+        TS_ASSERT_EQUALS(arrSize, expectedValue);
     }
 
     void testArrayInit(void)
