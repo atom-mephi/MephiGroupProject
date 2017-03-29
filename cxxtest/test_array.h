@@ -19,13 +19,45 @@ public:
         TS_ASSERT_EQUALS(arrSize, expectedValue);
     }
 
-    void testArrayInit(void)
+    void testArrayInitWithInitialisationList(void)
     {
-        atom::array<int, 3> arr = {{5, 6, 7}};
+        // given
+        const int expectedFirstValue = 5;
+        const int expectedSecondValue = 6;
+        const int expectedThirdValue = 7;
+        atom::array<int, 3> arr = {{expectedFirstValue, expectedSecondValue, expectedThirdValue}};
 
-        TS_ASSERT_EQUALS(arr.size(), 3);
-        TS_ASSERT_EQUALS(arr[0], 5);
-        TS_ASSERT_EQUALS(arr[1], 6);
-        TS_ASSERT_EQUALS(arr[2], 7);
+        // when
+        int firstValue = arr[0];
+        int secondValue = arr[1];
+        int thirdValue = arr[2];
+
+        // then
+        TS_ASSERT_EQUALS(firstValue, expectedFirstValue);
+        TS_ASSERT_EQUALS(secondValue, expectedSecondValue);
+        TS_ASSERT_EQUALS(thirdValue, expectedThirdValue);
+    }
+
+    void testRandomAccessOperator(void)
+    {
+        // given
+        const int expectedFirstValue = 5;
+        const int expectedSecondValue = 6;
+        const int expectedThirdValue = 7;
+        atom::array<int, 3> arr;
+
+        // when
+        arr[0] = expectedFirstValue;
+        arr[1] = expectedSecondValue;
+        arr[2] = expectedThirdValue;
+
+        int firstValue = arr[0];
+        int secondValue = arr[1];
+        int thirdValue = arr[2];
+
+        // then
+        TS_ASSERT_EQUALS(firstValue, expectedFirstValue);
+        TS_ASSERT_EQUALS(secondValue, expectedSecondValue);
+        TS_ASSERT_EQUALS(thirdValue, expectedThirdValue);
     }
 };
