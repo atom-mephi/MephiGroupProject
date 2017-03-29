@@ -4,8 +4,11 @@
 
 #include <exception>
 
+namespace atom
+{
+
 template < class T, size_t N >
-class Array
+class array
 {
     private:
         using value_type = T;
@@ -117,7 +120,7 @@ class Array
                 *iter = value;
         }
 
-        void swap( Array& other )
+        void swap( array& other )
         {
             for( size_t i = 0; i < N; ++i )
             {
@@ -127,7 +130,10 @@ class Array
             }
         }
 
+    public:
         T _data[N];
 };
+
+} // namespace atom
 
 #endif

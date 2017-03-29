@@ -10,7 +10,7 @@ public:
     {
         // given
         const size_t expectedValue = 10;
-        Array<int, expectedValue> arr;
+        atom::array<int, expectedValue> arr;
 
         // when
         size_t arrSize = arr.size();
@@ -21,7 +21,7 @@ public:
 
     void testArrayInit(void)
     {
-        Array<int, 3> arr = {{5, 6, 7}};
+        atom::array<int, 3> arr = {{5, 6, 7}};
 
         TS_ASSERT_EQUALS(arr.size(), 3);
         TS_ASSERT_EQUALS(arr[0], 5);
