@@ -143,6 +143,16 @@ public:
         TS_ASSERT_EQUALS(backValue, expectedValue);
     }
 
+    void testRangeBasedFor(void)
+    {
+        // given
+        atom::array<int, 5> arr = {{17, 6, 12, 20, 10}};
+
+        int i = 0;
+        for( auto& elem : arr )
+            TS_ASSERT_EQUALS(elem, arr[i++]);
+    }
+
     void testSize(void)
     {
         // given

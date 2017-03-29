@@ -43,6 +43,11 @@ class random_access_iterator
             return _pointer == that._pointer;
         }
 
+        bool operator!=(const random_access_iterator& that)
+        {
+            return !operator==(that);
+        }
+
         pointer operator->()
         {
             return _pointer;
