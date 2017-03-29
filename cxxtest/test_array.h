@@ -1,4 +1,4 @@
-// TestField.h
+// test_array.h
 #include <cxxtest/TestSuite.h>
 
 #include "../array.h"
