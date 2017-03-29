@@ -60,4 +60,60 @@ public:
         TS_ASSERT_EQUALS(secondValue, expectedSecondValue);
         TS_ASSERT_EQUALS(thirdValue, expectedThirdValue);
     }
+
+    void testAccessOperatorWithRangeCheck(void)
+    {
+        // given
+        const int expectedFirstValue = 5;
+        const int expectedSecondValue = 6;
+        const int expectedThirdValue = 7;
+        atom::array<int, 3> arr = {{expectedFirstValue, expectedSecondValue, expectedThirdValue}};
+
+        // when
+        int firstValue = 0;
+        int secondValue = 0;
+        int thirdValue = 0;
+
+        try
+        {
+            firstValue = arr.at(0);
+            secondValue = arr.at(1);
+            thirdValue = arr.at(2);
+        }
+        catch(...)
+        {
+            TS_ASSERT(!"expected exception");
+        }
+
+        // then
+        TS_ASSERT_EQUALS(firstValue, expectedFirstValue);
+        TS_ASSERT_EQUALS(secondValue, expectedSecondValue);
+        TS_ASSERT_EQUALS(thirdValue, expectedThirdValue);
+    }
+
+    void testAccessOperatorWithRangeCheckThrowsException(void)
+    {
+        // given
+        atom::array<int, 3> arr = {{5, 6, 7}};
+        const bool expectedValue = true;
+
+        bool catched = false;
+
+        // when
+        try
+        {
+            int tmp = arr.at(3);
+        }
+        catch(std::out_of_range e)
+        {
+            catched = expectedValue;
+        }
+        catch(...)
+        {
+            TS_ASSERT(!"expected exception");
+        }
+
+        // then
+        TS_ASSERT_EQUALS(catched, expectedValue);
+    }
 };
