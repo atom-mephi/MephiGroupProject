@@ -19,7 +19,6 @@ class array
         using const_pointer = const pointer;
         using size_type = size_t;
         using iterator = random_access_iterator<T>;
-        using reverse_iterator = std::reverse_iterator<iterator>;
 
     public:
         reference at( size_type pos )

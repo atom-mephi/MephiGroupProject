@@ -148,6 +148,7 @@ public:
         // given
         atom::array<int, 5> arr = {{17, 6, 12, 20, 10}};
 
+        // then
         int i = 0;
         for( auto& elem : arr )
             TS_ASSERT_EQUALS(elem, arr[i++]);
