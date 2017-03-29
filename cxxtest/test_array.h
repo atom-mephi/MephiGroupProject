@@ -142,4 +142,17 @@ public:
         // then
         TS_ASSERT_EQUALS(backValue, expectedValue);
     }
+
+    void testSize(void)
+    {
+        // given
+        const int expectedValue = 10;
+        atom::array<int, expectedValue> arr;
+
+        // when
+        int sizeValue = arr.size();
+
+        // then
+        TS_ASSERT_EQUALS(sizeValue, expectedValue);
+    }
 };
