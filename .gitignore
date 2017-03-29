@@ -1,0 +1,5 @@
+# vim temporary files
+*.swp
+
+# tests build dir
+cxxtest/build/
