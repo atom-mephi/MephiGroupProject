@@ -116,4 +116,30 @@ public:
         // then
         TS_ASSERT_EQUALS(catched, expectedValue);
     }
+
+    void testFront(void)
+    {
+        // given
+        const int expectedValue = 8;
+        atom::array<int, 3> arr = {{expectedValue, 6, 7}};
+
+        // when
+        int frontValue = arr.front();
+
+        // then
+        TS_ASSERT_EQUALS(frontValue, expectedValue);
+    }
+
+    void testBack(void)
+    {
+        // given
+        const int expectedValue = 21;
+        atom::array<int, 3> arr = {{17, 6, expectedValue}};
+
+        // when
+        int backValue = arr.back();
+
+        // then
+        TS_ASSERT_EQUALS(backValue, expectedValue);
+    }
 };
