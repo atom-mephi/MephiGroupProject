@@ -45,7 +45,7 @@ private:
 	 * @param function_type string recieved out of __PRETTY_FUNCTION__
 	 * @param condition define whether dump was called before function or after;
 	 */
-	void dump (const std::string& function_type, const std::string& condition) const {
+	void dump(const std::string& function_type, const std::string& condition) const {
 		std::ofstream dump_out(constants::DUMP_FILE_NAME.c_str(), std::ios::app);
 
 		dump_out << std::endl << condition << " function: " << function_type << std::endl;
@@ -81,7 +81,7 @@ public:
 			return item;
 		} else {
 			DUMP(constants::END_STATE);
-			return container_[container_.size() - 1];
+			return container_.back();
 		}
 
 	}
@@ -114,7 +114,7 @@ public:
 	 * @return True if size == 0, False otherwise
 	 */
 	bool empty() const {
-		return container_.size() == 0;
+		return container_.empty();
 	}
 
 	/**
@@ -122,7 +122,7 @@ public:
 	 * @return size_t 
 	 */
 	std::size_t size() const {
-		return container_;
+		return container_.size(0);
 	}
 
 };

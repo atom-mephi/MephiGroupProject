@@ -2,7 +2,7 @@
 #pragma once
 
 #include <cstdlib>
-
+#include "allocator.h"
 namespace vec {
 
 #ifndef DUMP
@@ -17,7 +17,7 @@ namespace dump_constants {
 }
 
 
-template <class T> 
+template <class T, class TAllocator = DefaultAllocator<T> > 
 class vector {
 	private:
 		using value_type = T;
@@ -29,6 +29,8 @@ class vector {
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>; 
 
+		TAllocator allocator;
+
 		T* data_;
 
 		size_type current_size_;
@@ -36,27 +38,30 @@ class vector {
 		size_type capacity_;
 
 		const int MULTIPLY_CONST = 2;
+		
+		/**
+		 * Swap content of vectors.
+		 * @param other vector to be swapped
+		 */
+		void swap(vector& other) noexcept {
+			std::swap(data_, other.data_);
+			std::swap(current_size_, other.current_size_);
+			std::swap(capacity_, other.capacity_);
+		}
 
 		/**
-		 * increase capacity by MULTIPLY_CONST
+		 * Increase capacity of the vector;
 		 */
 		void grow() {
+
 			if (capacity()) {
-				data_ = (T*) realloc(data_, capacity() * MULTIPLY_CONST * sizeof(T));
 
-				if (!data_) {
-					throw std::bad_alloc();
-				}
+				reserve(capacity() * MULTIPLY_CONST);
 
-				capacity_ *= MULTIPLY_CONST;
 			}	else {
-				data_ = (T*) realloc(data_, sizeof(T));
+	
+				reserve(1);
 
-				if (!data_) {
-					throw std::bad_alloc();
-				}
-
-				capacity_ = 1;
 			}
 		}
 
@@ -89,7 +94,7 @@ class vector {
 		 * Default constructor
 		 */
 		vector() : 
-			data_(new T[0]), 
+			data_(nullptr), 
 			current_size_(0), 
 			capacity_(0)
 			{} ;
@@ -118,7 +123,9 @@ class vector {
 			current_size_(other.size()), 
 			capacity_(other.size()) {
 
-				std::copy(other.begin(), other.end(), begin());
+				for (size_t i = 0; i < other.size(); ++i) {
+					data_[i] = other.data_[i];
+				}
 
 		}
 
@@ -139,7 +146,12 @@ class vector {
 		 * Destructor.
 		 */
 		~vector() {
-			delete[] data_;
+			for (size_t i = 0; i < size(); ++i) {
+				allocator.destroy(data_ + i);
+			}
+
+			allocator.deallocate(data_);
+
 			current_size_ = 0;
 			capacity_ = 0;
 		}
@@ -161,18 +173,71 @@ class vector {
 		 */
 		vector& operator=(vector&& other) {
 			
-			data_ = other.data_;
-			current_size_ = other.current_size_;
-			capacity_ = other.capacity_;
+			if (this != &other) {
 
-			other.data_ = nullptr;
-			current_size_ = 0;
-			capacity_ = 0;
+				vector tmp;
+
+				std::move(tmp.data_, other.data_);
+				std::move(tmp.capacity_, other.capacity_);
+				std::move(tmp.current_size_, other.current_size_);
+
+				swap(tmp);
+			}
+
+			return *this;
+
 		} 
+		
+		/**
+		 * Reserve memory for new_capacity elements. Does nothing if new_capacity is less than old capacity,
+		 * otherwise reserves memory for new_capacity elements.
+		 * @param new_capacity New capacity of the vector.
+		 */
+		void reserve(const size_type& new_capacity) {
 
+			DUMP(dump_constants::START_STATE);
+
+			if (new_capacity <= capacity()) {
+				DUMP(dump_constants::END_STATE);
+			
+				return;
+			}
+
+			T* proxy_data = allocator.allocate(new_capacity);
+
+			size_t pos = 0;
+			
+			try {
+				
+				while (pos < size()) {
+					allocator.construct(&proxy_data[pos], data_[pos]);
+					++pos;
+				}	
+			
+			} catch (...) {
+
+				for (int i = static_cast<int>(pos) - 1; i >= 0; --i) {
+					allocator.destroy(proxy_data + i);
+				}
+				
+				allocator.deallocate(proxy_data);
+
+				throw;
+			}
+
+			vector proxy_vector;
+
+			swap(proxy_vector);
+
+			data_ = proxy_data;
+			current_size_ = proxy_vector.size();
+			capacity_ = new_capacity;
+		
+			DUMP(dump_constants::END_STATE);
+		}
 
 		/**
-		 * Assign count element to a specific value. Capacity and size will be set to count.
+		 * Assign count elements to a specific value. If count > capacity(); New memory will be allocated
 		 * @param count New capacity and size of the vector.
 		 * @param value Value to be filled.
 		 */
@@ -180,16 +245,23 @@ class vector {
 
 			DUMP(dump_constants::START_STATE);
 
-			data_ = (T*) realloc(data_, count * sizeof(T));
+			if (count <= capacity()) {
 
-			if (!data_) {
-				throw std::bad_alloc();
+				for (size_t pos = 0; pos < count; ++pos) {
+					data_[pos] = value;
+				}
+
+			} else {
+
+				reserve(count);
+	
+				for (size_t pos = 0; pos < count; ++pos) {
+					data_[pos] = value;
+				}				
+			
 			}
 
 			current_size_ = count;
-			capacity_ = count;
-
-			memset(data_, value, count);
 
 			DUMP(dump_constants::END_STATE);
 		}
@@ -200,7 +272,7 @@ class vector {
 		 * @return     Reference to the elemet.
 		 */
 		reference at(size_type pos) {
-			if (pos >= 0 && pos <= current_size_) return data_[pos];
+			if (pos <= current_size_) return data_[pos];
 			else {
 				throw std::out_of_range("Index is out of range");
 			}
@@ -212,7 +284,7 @@ class vector {
 		 * @return     Const reference to the elemet.
 		 */
 		const_reference at(size_type pos) const {
-			if (pos >= 0 && pos <= current_size_) return data_[pos];
+			if (pos <= current_size_) return data_[pos];
 			else {
 				throw std::out_of_range("Index is out of range");
 			}
@@ -297,27 +369,6 @@ class vector {
 		}
 
 		/**
-		 * Reserve memory for new_capacity elements. Does nothing if new_capacity is less than old capacity,
-		 * otherwise reserves memory for new_capacity elements.
-		 * @param new_capacity New capacity of the vector.
-		 */
-		void reserve(const size_type& new_capacity) {
-
-			DUMP(dump_constants::START_STATE);
-
-			if (new_capacity <= capacity()) return;
-			data_ = (T*) realloc(data_, new_capacity * sizeof(T));
-
-			if (!data_) {
-				throw std::bad_alloc();
-			}
-
-			capacity_ = new_capacity;
-		
-			DUMP(dump_constants::END_STATE);
-		}
-
-		/**
 		 * Shrinks vector's capacity to it's size.
 		 */
 		void shrink_to_fit() {
@@ -325,13 +376,36 @@ class vector {
 			DUMP(dump_constants::START_STATE);
 
 			if (capacity() == size()) return;
-			data_ = (T*) realloc(data_, size() * sizeof(T));
 
-			if (!data_) {
-				throw std::bad_alloc();
+			T* proxy_data = allocator.allocate(size());
+
+			size_t pos = 0;
+			
+			try {
+
+				while (pos < size()) {
+					allocator.construct(proxy_data[pos], data_[pos]);
+				}
+
+			} catch (...) {
+
+				for (int i = static_cast<int>(pos) - 1; i >= 0; --i) {
+					allocator.destroy(proxy_data[pos]);
+				}
+				
+				allocator.deallocate(proxy_data);
+
+				throw;
+
 			}
 
-			capacity_ = size();
+			vector proxy_vector;
+
+			swap(proxy_vector);
+
+			data_ = proxy_data;
+			current_size_ = proxy_vector.size();
+			capacity_ = proxy_vector.capacity();
 
 			DUMP(dump_constants::END_STATE);
 		}
@@ -343,8 +417,7 @@ class vector {
 
 			DUMP(dump_constants::START_STATE);
 
-			T item;
-			assign(capacity(), item);
+			assign(capacity(), T());
 			current_size_ = 0;
 
 			DUMP(dump_constants::END_STATE);
@@ -378,11 +451,10 @@ class vector {
 
 			if (size() == capacity()) {
 				grow();
-
-				new (end()) T(value);
-
-				++current_size_;
 			}
+
+			allocator.construct(data_[size()], value);
+			++current_size_;
 
 			DUMP(dump_constants::END_STATE);
 		}
@@ -404,45 +476,27 @@ class vector {
 		}
 
 		/**
-		 * Set size and capacity of the vector to count. Fill it with the default T value.
-		 * @param count New size and capacity of the vector.
-		 */
-		void resize(size_type count) {
-
-			DUMP(dump_constants::START_STATE);
-
-			data_ = (T*) realloc(data_, count * sizeof(T));
-
-			if (!data_) {
-				throw std::bad_alloc();
-			}
-
-			current_size_ = count;
-			capacity_ = count;
-
-			for (size_t i = size(); i < count; ++i) {
-				data_[i] = T();
-			}
-
-			DUMP(dump_constants::END_STATE);
-		}
-
-		/**
 		 * Set size and capacity of the vector to count. Fill it with given value.
 		 * @param count New size and capacity of the vector.
 		 * @param value Fill vector's content with given value.
 		 */
-		void resize(size_type count, const value_type& value) {
+		void resize(size_type count, const value_type& value = T()) {
 			
 			DUMP(dump_constants::START_STATE);
 
-			data_ = (T*) realloc(data_, count * sizeof(T));
+			for (size_t pos = 0; pos < count; ++pos) {
+				allocator.destroy(data_ + pos);
+			}
+			allocator.deallocate(data_);
+
+			data_ = allocator.allocate(count);
+			
+			for (size_t pos = 0; pos < count; ++pos) {
+				allocator.construct(data_ + pos, value);
+			}
+
 			current_size_ = count;
 			capacity_ = count;
-
-			for (size_t i = size(); i < count; ++i) {
-				data_[i] = value;
-			}
 
 			DUMP(dump_constants::END_STATE);
 		}	
