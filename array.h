@@ -124,4 +124,6 @@ class array
 
 } // namespace atom
 
+#include "array_bool.h"
+
 #endif
