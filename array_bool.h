@@ -13,7 +13,6 @@ class array<bool, N>
 {
     private:
         using size_type = size_t;
-        //using iterator = random_access_iterator<T>;
         using host_type = char;
 
     public:
@@ -32,6 +31,11 @@ class array<bool, N>
                 }
 
                 operator bool()
+                {
+                    return getValue();
+                }
+
+                bool operator*()
                 {
                     return getValue();
                 }
@@ -62,6 +66,68 @@ class array<bool, N>
         using reference = boolReference;
 
     public:
+        class bool_array_iterator
+        {
+            private:
+                using reference = boolReference;
+                using host_type = char;
+
+            public:
+                bool_array_iterator(host_type* const data, size_t pos)
+                    : _data(data)
+                    , _pos(pos)
+                {}
+
+                reference operator*()
+                {
+                    return boolReference(_data, _pos);
+                }
+
+                bool_array_iterator& operator++()
+                {
+                    _pos++;
+                    return *this;
+                }
+
+                bool_array_iterator operator++(int)
+                {
+                    auto tmp = *this;
+                    operator++();
+                    return tmp;
+                }
+
+                bool operator==(const bool_array_iterator& that)
+                {
+                    return _data == that._data && _pos == that._pos;
+                }
+
+                bool operator!=(const bool_array_iterator& that)
+                {
+                    return !operator==(that);
+                }
+
+                bool_array_iterator& operator--()
+                {
+                    --_pos;
+                    return *this;
+                }
+
+                bool_array_iterator operator--(int)
+                {
+                    auto tmp = *this;
+                    operator--();
+                    return tmp;
+                }
+
+            private:
+                host_type* const _data;
+                size_t _pos;
+        };
+
+    private:
+        using iterator = bool_array_iterator;
+
+    public:
         reference operator[]( size_type pos )
         {
             return boolReference(_data, pos);
@@ -77,15 +143,15 @@ class array<bool, N>
             return boolReference(_data, N-1);
         }
 
-        //iterator begin()
-        //{
-        //    return _data;
-        //}
+        iterator begin()
+        {
+            return bool_array_iterator(_data, 0);
+        }
 
-        //iterator end()
-        //{
-        //    return _data + N;
-        //}
+        iterator end()
+        {
+            return bool_array_iterator(_data, N);
+        }
 
         bool empty()
         {

@@ -193,4 +193,26 @@ public:
         // then
         TS_ASSERT_EQUALS(arr[3], false);
     }
+
+    void testBoolArrayIterator(void)
+    {
+        // given
+        atom::array<bool, 5> arr;
+        bool expected[5] = {true, true, false, true, false};
+        for(int i = 0; i < 5; ++i)
+            arr[i] = expected[i];
+
+        // when
+        int i = 0;
+        for(auto iter : arr)
+        {
+            TS_ASSERT_EQUALS((bool)*iter, expected[i]);
+            ++i;
+        }
+
+        // then
+        TS_ASSERT_EQUALS(*arr.begin(), expected[0]);
+        TS_ASSERT_EQUALS(arr[3], expected[3]);
+        TS_ASSERT_EQUALS(*(--(arr.end())), expected[4]);
+    }
 };
