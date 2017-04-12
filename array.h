@@ -3,6 +3,7 @@
 #define ATOM_ARRAY_H
 
 #include <exception>
+#include "random_access_iterator.h"
 
 namespace atom
 {
@@ -17,10 +18,7 @@ class array
         using pointer = value_type*;
         using const_pointer = const pointer;
         using size_type = size_t;
-        using iterator = pointer;
-        using const_iterator = const iterator;
-        using reverse_iterator = std::reverse_iterator<iterator>;
-        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+        using iterator = random_access_iterator<T>;
 
     public:
         reference at( size_type pos )
@@ -84,17 +82,7 @@ class array
             return _data;
         }
 
-        const_iterator cbegin() const
-        {
-            return _data;
-        }
-
         iterator end()
-        {
-            return _data + N;
-        }
-
-        const_iterator cend() const
         {
             return _data + N;
         }
