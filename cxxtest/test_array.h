@@ -166,4 +166,53 @@ public:
         // then
         TS_ASSERT_EQUALS(sizeValue, expectedValue);
     }
+
+    void testBoolArraySize(void)
+    {
+        // given
+        const size_t expectedValue = 10;
+        atom::array<bool, expectedValue> arr;
+
+        // when
+        size_t arrSize = arr.size();
+
+        // then
+        TS_ASSERT_EQUALS(arrSize, expectedValue);
+    }
+
+    void testBoolArrayAccessor(void)
+    {
+        // given
+        atom::array<bool, 10> arr;
+
+        // when
+        arr[3] = true;
+        TS_ASSERT_EQUALS(arr[3], true);
+        arr[3] = false;
+
+        // then
+        TS_ASSERT_EQUALS(arr[3], false);
+    }
+
+    void testBoolArrayIterator(void)
+    {
+        // given
+        atom::array<bool, 5> arr;
+        bool expected[5] = {true, true, false, true, false};
+        for(int i = 0; i < 5; ++i)
+            arr[i] = expected[i];
+
+        // when
+        int i = 0;
+        for(auto iter : arr)
+        {
+            TS_ASSERT_EQUALS((bool)*iter, expected[i]);
+            ++i;
+        }
+
+        // then
+        TS_ASSERT_EQUALS(*arr.begin(), expected[0]);
+        TS_ASSERT_EQUALS(arr[3], expected[3]);
+        TS_ASSERT_EQUALS(*(--(arr.end())), expected[4]);
+    }
 };
